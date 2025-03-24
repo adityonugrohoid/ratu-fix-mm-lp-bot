@@ -1,23 +1,5 @@
-# Binance FIX API Connector in Python
+#!/usr/bin/env python3
 
-This is a simple Python library that provides access to Binance Financial Information eXchange (FIX) [SPOT messages](https://github.com/binance/binance-spot-api-docs/blob/master/fix-api.md#message-components) using the FIX protocol. 
-It allows you to perform key operations such as placing orders, canceling orders, and querying current limit usage.
-
-## Prerequisites
-
-Before using or testing the library, ensure that the necessary dependencies are installed. You can do this by running the following command:
-```
-pip install binance-fix-connector
-```
-
-**Notes:**
-- FIX API only support Ed25519 keys. Please refer to this [tutorial](https://www.binance.com/en/support/faq/how-to-generate-an-ed25519-key-pair-to-send-api-requests-on-binance-6b9a63f1e3384cf48a2eedb82767a69a) for setting up an Ed25519 key pair on the mainnet, and this one for the [testnet](https://testnet.binance.vision/).
-- Ensure that your API key has the appropriate Fix API permissions for the Testnet environment before you begin testing.
-
-## Example
-
-All the FIX messages can be created with the `BinanceFixConnector` class. The following example demonstrates how to create a simple order using the FIX API:
-```python
 import time
 import os
 from pathlib import Path
@@ -26,9 +8,7 @@ from binance_fix_connector.fix_connector import create_order_entry_session
 from binance_fix_connector.utils import get_api_key, get_private_key
 
 # Credentials
-path = config_path = os.path.join(
-    Path(__file__).parent.resolve(), "..", "config.ini"
-)
+path = config_path = os.path.join(Path(__file__).parent.resolve(), "..", "config.ini")
 API_KEY, PATH_TO_PRIVATE_KEY_PEM_FILE = get_api_key(path)
 
 # FIX URL
@@ -123,14 +103,3 @@ client_oe.logger.info(
     "Closing the connection with server as we already sent the logout message"
 )
 client_oe.disconnect()
-```
-
-Please look at [`examples`](./examples) folder to test the examples.
-To try the examples, follow the indications written on the [`examples/config.ini.example`](./examples/config.ini.example) file.
-
-## Documentation
-
-For more information, have a look at the Binance documentation on [Fix API](https://developers.binance.com/docs/binance-spot-api-docs/fix-api).
-
-## License
-MIT
