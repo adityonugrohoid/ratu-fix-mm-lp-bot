@@ -201,8 +201,6 @@ def create_drop_copy_session(
         fix_version=fix_version,
         heart_bt_int=heart_bt_int,
         socket_buffer_size=MAX_BUFFER_SIZE,
-        auto_reconnect=False,
-        auto_reconnect_attempts=3,
         reset_seq_num_flag="Y",
         encrypt_method=0,
         response_mode=response_mode,
