@@ -1,3 +1,11 @@
+# RATU FIX Market Making LP Bot by [AdityoLab](https://github.com/adityonugrohoid)
+
+This repository is a development fork of [binance/binance-fix-connector-python](https://github.com/binance/binance-fix-connector-python), maintained by AdityoLab for the RATU FIX Market Making & LP Bot.
+
+Our work builds directly on Binance’s official codebase, and all original licensing, functionality, and credits remain preserved.
+
+This fork is dedicated to advancing high-performance liquidity provision, affiliate, and rebate strategies within the Binance Spot FIX API ecosystem—while fully respecting upstream changes and compliance requirements, as part of our ongoing LP program application and partnership mission.
+
 # Binance FIX API Connector in Python
 
 This is a simple Python library that provides access to Binance Financial Information eXchange (FIX) [SPOT messages](https://github.com/binance/binance-spot-api-docs/blob/master/fix-api.md#message-components) using the FIX protocol. 
