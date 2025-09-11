@@ -11,8 +11,13 @@ from binance_fix_connector.utils import get_api_key, get_private_key
 path = config_path = os.path.join(Path(__file__).parent.resolve(), "..", "config.ini")
 API_KEY, PATH_TO_PRIVATE_KEY_PEM_FILE = get_api_key(path)
 
-# FIX URL
-FIX_OE_URL = "tcp+tls://fix-oe.testnet.binance.vision:9000"
+# FIX URLs (TESTNET)
+# FIX_OE_URL = "tcp+tls://fix-oe.testnet.binance.vision:9000"
+
+# FIX URLs (MAINNET)
+FIX_OE_URL = "tcp+tls://fix-oe.binance.com:9000"   # Order Entry
+FIX_MD_URL = "tcp+tls://fix-md.binance.com:9000"   # Market Data
+FIX_DC_URL = "tcp+tls://fix-dc.binance.com:9000"   # Drop Copy
 
 # Response types
 ORD_STATUS = {
