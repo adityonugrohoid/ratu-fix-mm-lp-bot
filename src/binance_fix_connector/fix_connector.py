@@ -367,7 +367,7 @@ class BinanceFixConnector:
         signature = self.private_key.sign(bytes(signed_headers, "ASCII"))
         return base64.b64encode(signature).decode("ASCII")
 
-    def parse_server_response(self) -> list[FixMessage]:
+    def parse_server_response_original(self) -> list[FixMessage]:
         """
         Parse the response from the server and create a fix message for every message serve has sent.
 
@@ -397,6 +397,77 @@ class BinanceFixConnector:
                 messages.append(fix_msg)
             else:  # uncompleted message
                 self.__data = bytes(f"{_SOH_}".join(raw_messages[i:]).encode("ASCII"))
+                return messages
+
+        self.__data = b""
+        return messages
+
+    def parse_server_response(self) -> list[FixMessage]:
+        """
+        Defensive parser for all incoming FIX messages from the server.
+
+        Robustly handles:
+        - [FULL]: Complete and valid message, appended to output.
+        - [PARTIAL]: Incomplete (chunked) message, held in buffer for next parse round.
+        - [MALFORMED]: Broken or invalid tag-value fields, skipped and logged for forensics.
+        - [ERROR]: Exception during parsing, skipped and logged for analysis.
+
+        Returns
+        -------
+            list[FixMessage]: The list of (FIX) messages parsed from the server buffer.
+        """
+        if len(self.__data) < MIN_FIX_MESSAGE_LENGTH:
+            return []
+        raw_data = self.__data.decode("utf-8")
+        msg = raw_data if raw_data.startswith(_SOH_) else f"{_SOH_}{raw_data}"
+        raw_messages = [f"8={x}" for x in msg.split(f"{_SOH_}8=") if x]
+        messages: list[FixMessage] = []
+
+        for i in range(len(raw_messages)):
+            tag_values = [x for x in raw_messages[i].split(_SOH_) if x != ""]
+
+            # --- Header normalization (handle chunked 8= tags) ---
+            if (
+                len(tag_values) > 1
+                and tag_values[0] == "8="
+                and tag_values[1] == self.fix_version
+            ):
+                tag_values.pop(0)
+                tag_values[0] = f"8={self.fix_version}"
+
+            # --- Malformed tag-value field detection (skip and log) ---
+            malformed = [
+                s for s in tag_values
+                if '=' not in s or (s.startswith('8=') and s != f'8={self.fix_version}')
+            ]
+            if malformed:
+                print("[MALFORMED] [parse_server_response]")
+                print("  tag_values:", tag_values)
+                print("  malformed:", malformed)
+                print("  raw_message:", raw_messages[i])
+                continue  # Do not process this message
+
+            # --- Complete message check (valid FIX trailer '10=' at end) ---
+            if tag_values and tag_values[-1].startswith("10=") and len(tag_values[-1]) >= TRAILER_SIZE:
+                try:
+                    fix_msg = FixMessage()
+                    # Only use clean tag-value fields for parsing
+                    fix_msg.append_strings([s for s in tag_values if '=' in s and s.split('=', 1)[1] != ''])
+                    messages.append(fix_msg)  # [FULL]
+                except Exception as e:
+                    print("[ERROR] [parse_server_response]")
+                    print("  tag_values:", tag_values)
+                    print("  error:", e)
+                    print("  raw_message:", raw_messages[i])
+                    continue  # Skip this message on error
+
+            else:
+                # --- Partial/incomplete message (buffer for next round) ---
+                self.__data = bytes(f"{_SOH_}".join(raw_messages[i:]).encode("ASCII"))
+                print("[PARTIAL] [parse_server_response]")
+                print("  tag_values:", tag_values)
+                print("  raw_messages[i]:", repr(raw_messages[i]))
+                print("  buffer (trunc):", repr(self.__data[:200]))
                 return messages
 
         self.__data = b""

@@ -130,6 +130,15 @@ ENV/
 env.bak/
 venv.bak/
 
+# Output / Logs / Artifacts
+logs/
+output/
+*.log
+*.out
+*.tmp
+*.dat
+results/
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -164,7 +173,7 @@ cython_debug/
 # Config File
 config.ini
 
-# Key folder and PEMs (add these lines)
+# Key folder and PEMs
 config/ed25519-priv.pem
 config/ed25519-pub.pem
 config/*.pem
