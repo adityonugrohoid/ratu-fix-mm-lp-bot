@@ -412,6 +412,9 @@ class BinanceFixConnector:
         - [MALFORMED]: Broken or invalid tag-value fields, skipped and logged for forensics.
         - [ERROR]: Exception during parsing, skipped and logged for analysis.
 
+        NOTE: All debug/print statements are commented out for production speed/latency.
+        Use the "error only" redirect (2>) when needed for future error triage.
+
         Returns
         -------
             list[FixMessage]: The list of (FIX) messages parsed from the server buffer.
@@ -441,10 +444,10 @@ class BinanceFixConnector:
                 if '=' not in s or (s.startswith('8=') and s != f'8={self.fix_version}')
             ]
             if malformed:
-                print("[MALFORMED] [parse_server_response]")
-                print("  tag_values:", tag_values)
-                print("  malformed:", malformed)
-                print("  raw_message:", raw_messages[i])
+                # print("[MALFORMED] [parse_server_response]")
+                # print("  tag_values:", tag_values)
+                # print("  malformed:", malformed)
+                # print("  raw_message:", raw_messages[i])
                 continue  # Do not process this message
 
             # --- Complete message check (valid FIX trailer '10=' at end) ---
@@ -455,19 +458,19 @@ class BinanceFixConnector:
                     fix_msg.append_strings([s for s in tag_values if '=' in s and s.split('=', 1)[1] != ''])
                     messages.append(fix_msg)  # [FULL]
                 except Exception as e:
-                    print("[ERROR] [parse_server_response]")
-                    print("  tag_values:", tag_values)
-                    print("  error:", e)
-                    print("  raw_message:", raw_messages[i])
+                    # print("[ERROR] [parse_server_response]")
+                    # print("  tag_values:", tag_values)
+                    # print("  error:", e)
+                    # print("  raw_message:", raw_messages[i])
                     continue  # Skip this message on error
 
             else:
                 # --- Partial/incomplete message (buffer for next round) ---
                 self.__data = bytes(f"{_SOH_}".join(raw_messages[i:]).encode("ASCII"))
-                print("[PARTIAL] [parse_server_response]")
-                print("  tag_values:", tag_values)
-                print("  raw_messages[i]:", repr(raw_messages[i]))
-                print("  buffer (trunc):", repr(self.__data[:200]))
+                # print("[PARTIAL] [parse_server_response]")
+                # print("  tag_values:", tag_values)
+                # print("  raw_messages[i]:", repr(raw_messages[i]))
+                # print("  buffer (trunc):", repr(self.__data[:200]))
                 return messages
 
         self.__data = b""
